@@ -1,0 +1,9 @@
+Looking at Stochastic Rate:  what will speed things up?
+
+    # variance = mag * 10 * (tauact*m)/1000
+    # tau act = 1000 / mag  ==> rate = input rate * weight * tauact/1000*mag
+    
+    # reducing tau_activation --> faster convergence, higher variance
+    # 
+
+

@@ -1,0 +1,2 @@
+#!/bin/csh -f
+python setup.py build_ext --inplace

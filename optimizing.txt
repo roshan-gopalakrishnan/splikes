@@ -1,0 +1,91 @@
+It seems as if the C++/octave code runs a bit over 10 times faster than this.
+I would like to see where the slowdown is.
+
+2 neurons, variable poisson into stochastic rate 
+spiking rate modification
+time 1e4
+
+In [3]:%timeit optim.optim()
+                     10 loops, best of 3: 328 ms per loop
+
+
+w/o save_spikes:
+
+                	10 loops, best of 3: 281 ms per loop
+
+w/o saving at all:
+
+                    10 loops, best of 3: 272 ms per loop
+
+
+so saving it not part of the problem
+
+back with all, just to recheck original numbers:
+
+                    10 loops, best of 3: 331 ms per loop
+
+w/o neuron update:
+                  	10 loops, best of 3: 167 ms per loop
+
+w/o connection saturate too
+                    10 loops, best of 3: 138 ms per loop
+
+w/o connection update too,
+                    10 loops, best of 3: 49.6 ms per loop
+
+w/o save spikes too
+                   100 loops, best of 3: 10.6 ms per loop
+
+
+just getting rid of connection update:
+
+                   10 loops, best of 3: 239 ms per loop
+
+
+replacing c_list[i].saturate() with saturate(c_list[i]):
+
+before:
+       				10 loops, best of 3: 333 ms per loop
+
+after:
+      			    10 loops, best of 3: 317 ms per loop
+                       (5% speedup)
+                       
+                       
+replacing c_list[i].update(t) (in this case) with
+            Spiking_Rate_update(c_list[i],t)
+                     10 loops, best of 3: 319 ms per loop
+                      (about 5% speedup)
+
+with
+
+            Spiking_Rate_cupdate(c_list[i],t)
+                     10 loops, best of 3: 309 ms per loop
+                     (maybe another 5%)
+                     
+replacing with struct
+
+               10 loops, best of 3: 242 ms per loop
+          
+wow!  almost like it's not there!  seems like most of the time is spent on
+Python API calls in the update methods
+
+Now I have it down to:
+
+
+In [2]:%timeit optim.optim()
+10 loops, best of 3: 55.4 ms per loop
+
+
+compare to soctagon:
+
+>> doit110405
+ans = 23.362
+>> doit110405
+ans = 23.937
+
+testit.py:
+ time =  12.7840538025
+ time =  13.1612579823
+
+
